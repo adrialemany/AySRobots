@@ -244,7 +244,6 @@
 -r:"/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll"
 -r:"/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll"
 -r:"/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/PlaybackEngines/LinuxStandaloneSupport/UnityEditor.LinuxStandalone.Extensions.dll"
--r:"/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll"
 -r:"/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/Microsoft.Win32.Primitives.dll"
 -r:"/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.AppContext.dll"
 -r:"/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Buffers.dll"

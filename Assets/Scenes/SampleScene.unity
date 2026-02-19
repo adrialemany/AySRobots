@@ -8733,6 +8733,7 @@ GameObject:
   - component: {fileID: 828109933}
   - component: {fileID: 828109938}
   - component: {fileID: 828109932}
+  - component: {fileID: 828109939}
   - component: {fileID: 828109937}
   m_Layer: 0
   m_Name: Robot
@@ -8778,6 +8779,8 @@ MonoBehaviour:
   rotationSpeed: 15
   canvasToActivate: {fileID: 1275748917}
   canvasToDestroy: {fileID: 1401689339}
+  topicName: /cmd_vel
+  rotateHeliceScript: {fileID: 0}
 --- !u!54 &828109934
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8864,6 +8867,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 909aebe44f1f6c5d7ac44dde667509c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &828109939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828109931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feab04ad06492965492b3edc6423aa53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &833753795 stripped
@@ -24107,6 +24122,50 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2139620795}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2139886738
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2139886740}
+  - component: {fileID: 2139886739}
+  m_Layer: 0
+  m_Name: ROS2_Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2139886739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139886738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feab04ad06492965492b3edc6423aa53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &2139886740
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139886738}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 394.91727, y: 0.6835462, z: 393.4521}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -24137,3 +24196,4 @@ SceneRoots:
   - {fileID: 333490557}
   - {fileID: 238541085}
   - {fileID: 1394904729}
+  - {fileID: 2139886740}

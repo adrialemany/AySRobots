@@ -84,7 +84,6 @@
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/BuiltinDebugViewsEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Utils/CurveEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/EyeAdaptationModelEditor.cs" />
-    <Compile Include="Assets/IgniteCoders/Simple Water Shader/Info/Scripts/Editor/ReadmeEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/ColorGradingModelEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/PropertyDrawers/MinDrawer.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/PostProcessingMonitor.cs" />
@@ -579,10 +578,6 @@
       <HintPath>/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/Managed/UnityEditor.Graphs.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEditor.WebGL.Extensions">
-      <HintPath>/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="UnityEditor.LinuxStandalone.Extensions">
       <HintPath>/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/PlaybackEngines/LinuxStandaloneSupport/UnityEditor.LinuxStandalone.Extensions.dll</HintPath>
       <Private>False</Private>
@@ -625,6 +620,102 @@
     </Reference>
     <Reference Include="Unity.VisualScripting.TextureAssets">
       <HintPath>Library/PackageCache/com.unity.visualscripting/Editor/VisualScripting.Core/EditorAssetResources/Unity.VisualScripting.TextureAssets.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="example_interfaces_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/example_interfaces_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="rosgraph_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/rosgraph_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="composition_interfaces_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/composition_interfaces_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="test_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/test_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="stereo_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/stereo_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="sensor_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/sensor_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="unique_identifier_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/unique_identifier_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="diagnostic_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/diagnostic_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="rcl_interfaces_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/rcl_interfaces_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="statistics_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/statistics_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="trajectory_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/trajectory_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="tf2_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/tf2_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="action_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/action_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="actionlib_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/actionlib_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="geometry_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/geometry_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="visualization_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/visualization_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="std_srvs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/std_srvs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="shape_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/shape_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="std_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/std_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nav_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/nav_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="lifecycle_msgs_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/lifecycle_msgs_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="builtin_interfaces_assembly">
+      <HintPath>Assets/Ros2ForUnity/Plugins/builtin_interfaces_assembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ros2cs_core">
+      <HintPath>Assets/Ros2ForUnity/Plugins/ros2cs_core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ros2cs_common">
+      <HintPath>Assets/Ros2ForUnity/Plugins/ros2cs_common.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib">
