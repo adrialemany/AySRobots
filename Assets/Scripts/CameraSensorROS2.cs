@@ -29,6 +29,7 @@ public class CameraSensorROS2 : MonoBehaviour
     {
         // 1. Configurar la cámara y texturas
         captureCamera = GetComponent<Camera>();
+        captureCamera.enabled = false;
         
         // Creamos la textura donde guardaremos los píxeles (RGB24 para color estándar)
         texture2D = new Texture2D(resolutionWidth, resolutionHeight, TextureFormat.RGB24, false);

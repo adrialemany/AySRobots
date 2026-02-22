@@ -65,5 +65,85 @@ You can use standard ROS packages to drive the robot with your physical keyboard
 sudo apt install ros-humble-teleop-twist-keyboard
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
+
+## Interfacing with the Robot (ROS 2 Topics)
+
+The Unity Digital Twin acts as a standard ROS 2 node, allowing you to build external graphical user interfaces (GUIs), autonomous navigation stacks, or AI vision scripts using standard ROS 2 tools (Python, C++, or web-based frameworks like Foxglove Studio).
+
+### Active Topics Dictionary
+
+#### 1. Command Velocity (Input to Unity)
+* **Topic:** `/cmd_vel`
+* **Message Type:** `geometry_msgs/msg/Twist`
+* **Role:** External applications act as **Publishers**, Unity acts as a **Subscriber**.
+* **Usage:** Publish to this topic to move the robot. 
+  * `linear.x`: Controls forward and backward speed.
+  * `linear.z`: Controls the ballast system for depth (positive to dive, negative to surface).
+  * `angular.z`: Controls the differential yaw rotation.
+
+#### 2. Camera Stream (Output from Unity)
+* **Topic:** `/camera/image/compressed`
+* **Message Type:** `sensor_msgs/msg/CompressedImage`
+* **Role:** Unity acts as a **Publisher**, external applications act as **Subscribers**.
+* **Usage:** Subscribe to this topic to receive the live video feed. The images are encoded in JPEG format to optimize bandwidth. You can decode them using libraries like OpenCV in Python (e.g., `cv2.imdecode`) for computer vision tasks or UI rendering.
+
+#### 3. 4D LiDAR Point Cloud (Output from Unity)
+* **Topic:** `/lidar/points`
+* **Message Type:** `sensor_msgs/msg/PointCloud2`
+* **Role:** Unity acts as a **Publisher**, external applications act as **Subscribers**.
+* **Usage:** Subscribe to this topic to get spatial data plus simulated laser return intensity. The data is formatted with standard `x`, `y`, `z`, and `intensity` fields (Float32). Useful for SLAM algorithms, obstacle avoidance, or 3D visualizers.
+
+### Building an External Interface (Python Example)
+
+If you are building an external dashboard or control script using `rclpy`, your node setup must mirror the Unity configuration. Here is a conceptual template of how an external interface connects to the simulator:
+
+```python
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import CompressedImage, PointCloud2
+import cv2
+import numpy as np
+
+class ExternalRobotInterface(Node):
+    def __init__(self):
+        super().__init__('external_ui_node')
+        
+        # 1. PUBLISHER: Send commands TO the Unity robot
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        
+        # 2. SUBSCRIBERS: Receive sensor data FROM the Unity robot
+        self.cam_sub = self.create_subscription(CompressedImage, '/camera/image/compressed', self.camera_callback, 10)
+        self.lidar_sub = self.create_subscription(PointCloud2, '/lidar/points', self.lidar_callback, 10)
+
+    def move_robot(self, forward_speed, dive_speed, turn_speed):
+        """Call this function from your UI buttons or gamepad"""
+        msg = Twist()
+        msg.linear.x = float(forward_speed)
+        msg.linear.z = float(dive_speed)
+        msg.angular.z = float(turn_speed)
+        self.cmd_pub.publish(msg)
+
+    def camera_callback(self, msg):
+        """Decode the JPEG stream from Unity for UI display or OpenCV"""
+        np_arr = np.frombuffer(msg.data, np.uint8)
+        image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        # Add your UI rendering or image processing logic here
+
+    def lidar_callback(self, msg):
+        """Process the 4D point cloud data"""
+        # Add your 3D visualization or filtering logic here
+        pass
+
+def main(args=None):
+    rclpy.init(args=args)
+    ui_node = ExternalRobotInterface()
+    rclpy.spin(ui_node)
+    ui_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
 ---
 Developed for marine robotics simulation using Unity and ROS 2.

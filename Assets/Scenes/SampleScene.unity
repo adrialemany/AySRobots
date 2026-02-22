@@ -3757,7 +3757,7 @@ GameObject:
   - component: {fileID: 343053618}
   - component: {fileID: 343053617}
   - component: {fileID: 343053616}
-  m_Layer: 5
+  m_Layer: 10
   m_Name: Robot_Camera_Sensor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
