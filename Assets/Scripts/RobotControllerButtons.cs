@@ -186,17 +186,22 @@ public class RobotControllerButtons : MonoBehaviour
         if (floaterScript != null)
         {
             floaterScript.enabled = false;
-            floaterScript.currentDepthOffset = 0f; 
+            // Eliminada la línea que reseteaba el currentDepthOffset para mantener el lastre actual
         }
         
-        rb.isKinematic = true;
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.Sleep();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.Sleep();
+        }
         
         float currentYRotation = transform.rotation.eulerAngles.y;
         Vector3 currentPosition = transform.position;
-        transform.position = new Vector3(currentPosition.x, -0.421f, currentPosition.z);
+        
+        // Mantenemos la coordenada 'y' actual en lugar de forzar -0.421f
+        transform.position = new Vector3(currentPosition.x, currentPosition.y, currentPosition.z);
         transform.rotation = Quaternion.Euler(0, currentYRotation, 0);
         
         targetMoveSpeed = 0f; currentMoveSpeed = 0f; targetRotationSpeed = 0f; currentRotationSpeed = 0f;
