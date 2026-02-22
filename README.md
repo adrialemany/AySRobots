@@ -13,7 +13,7 @@ The core of this project is the `RobotROS2Subscriber.cs` script. This controller
 
 ## Simulation Showcase
 
-### In-Game Views (Camera Feed)
+### In-Game Views (And Camera/Lidar Feed)
 | | | |
 |:---:|:---:|:---:|
 | <img src="Assets/Media/InGame1.png" alt="In-Game View 1" width="100%"> | <img src="Assets/Media/InGame2.png" alt="In-Game View 2" width="100%"> | <img src="Assets/Media/InGame3.png" alt="In-Game View 3" width="100%"> |
@@ -24,7 +24,7 @@ The core of this project is the `RobotROS2Subscriber.cs` script. This controller
 | <img src="Assets/Media/SceneView1.png" alt="Scene View 1" width="100%"> | <img src="Assets/Media/SceneView2.png" alt="Scene View 2" width="100%"> |
 | <img src="Assets/Media/SceneView3.png" alt="Scene View 3" width="100%"> | <img src="Assets/Media/SceneView4.png" alt="Scene View 4" width="100%"> |
 
-**Simulation Initialization:**
+**(Super Happy Submarine Robotics Engineer supervising his work):**
 <br>
 <img src="Assets/Media/SimulationStartedSceneView.png" alt="Simulation Started" width="70%">
 
