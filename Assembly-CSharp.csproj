@@ -160,6 +160,7 @@
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Utils/GraphicsUtils.cs" />
     <Compile Include="Assets/AQUAS-Lite/Scripts/AQUAS_Lite_Reflection.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/ROS2TwistPublisher.cs" />
+    <Compile Include="Assets/Scripts/RobotROS2Subscriber.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Components/EyeAdaptationComponent.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/Time/DotnetTimeSource.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/Time/TimeUtils.cs" />

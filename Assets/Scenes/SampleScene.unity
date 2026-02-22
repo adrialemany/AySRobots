@@ -9389,6 +9389,7 @@ GameObject:
   - component: {fileID: 828109932}
   - component: {fileID: 828109939}
   - component: {fileID: 828109937}
+  - component: {fileID: 828109940}
   m_Layer: 0
   m_Name: Robot
   m_TagString: Untagged
@@ -9424,7 +9425,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 828109931}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1baa8304a97d27957a7bc1f8a92c22b0, type: 3}
   m_Name: 
@@ -9504,7 +9505,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 828109931}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5143536389f640aa7a21800427efb54f, type: 3}
   m_Name: 
@@ -9542,6 +9543,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feab04ad06492965492b3edc6423aa53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &828109940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828109931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 012a3277f9bbe1834b3c06148c0a7fa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxMoveSpeedForHelices: 5
+  maxRotSpeedForHelices: 100
+  topicName: /cmd_vel
 --- !u!4 &833753795 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 463928, guid: 416c46ca128db5f4bb76f235b4f991d5, type: 3}
