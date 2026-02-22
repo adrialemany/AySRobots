@@ -11,8 +11,25 @@ The core of this project is the `RobotROS2Subscriber.cs` script. This controller
 * Safe Physical Limits: Includes "invisible walls" on the Y-axis (between -0.421 and -5.274) acting as a physical hard stop, killing inertia instantly to prevent unwanted bouncing when reaching the surface or the seabed.
 * Animated Differential Drive: Mathematically calculates the power each propeller should exert when turning or moving forward, animating the 3D models independently for a realistic look.
 
+## Simulation Showcase
+
+### In-Game Views (Camera Feed)
+| | | |
+|:---:|:---:|:---:|
+| <img src="Assets/Media/InGame1.png" alt="In-Game View 1" width="100%"> | <img src="Assets/Media/InGame2.png" alt="In-Game View 2" width="100%"> | <img src="Assets/Media/InGame3.png" alt="In-Game View 3" width="100%"> |
+
+### Editor & Scene Views (Physical Setup)
+| | |
+|:---:|:---:|
+| <img src="Assets/Media/SceneView1.png" alt="Scene View 1" width="100%"> | <img src="Assets/Media/SceneView2.png" alt="Scene View 2" width="100%"> |
+| <img src="Assets/Media/SceneView3.png" alt="Scene View 3" width="100%"> | <img src="Assets/Media/SceneView4.png" alt="Scene View 4" width="100%"> |
+
+**Simulation Initialization:**
+<br>
+<img src="Assets/Media/SimulationStartedSceneView.png" alt="Simulation Started" width="70%">
+
 ## Requirements
-* Unity 6(Tested with standard Rigidbody physics).
+* Unity 6 (Tested with standard Rigidbody physics).
 * ROS 2 (Humble recommended on Ubuntu 22.04).
 * ROS2ForUnity package (https://github.com/RobotecAI/ros2-for-unity) installed and built within the Unity project.
 
