@@ -64,6 +64,7 @@
     <Analyzer Include="/home/alemany/Unity/Hub/Editor/6000.0.23f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets/Scripts/CameraSensorROS2.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Components/AmbientOcclusionComponent.cs" />
     <Compile Include="Assets/TextMesh Pro/Examples &amp; Extras/Scripts/TMP_TextEventHandler.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Components/ChromaticAberrationComponent.cs" />
