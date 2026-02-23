@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 30eb2f01931be5a4fa090fc568ba9793
+timeCreated: 1519552728
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 31917
+  packageName: Old Rowboat
+  packageVersion: 2.1
+  assetPath: Assets/Boats/Demo/Post-Process_Profile_Rowboats.asset
+  uploadId: 237246

@@ -76,6 +76,7 @@
     <Compile Include="Assets/Ros2ForUnity/Scripts/RotateObject.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/ROS2ActivarTrue.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Attributes/MinAttribute.cs" />
+    <Compile Include="Assets/DenysAlmaral/FishAlive/Scripts/FishConstant.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/PostProcessingContext.cs" />
     <Compile Include="Assets/TextMesh Pro/Examples &amp; Extras/Scripts/EnvMapAnimator.cs" />
     <Compile Include="Assets/AQUAS-Lite/Scripts/AQUAS_Lite_Camera.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Models/DepthOfFieldModel.cs" />
     <Compile Include="Assets/TextMesh Pro/Examples &amp; Extras/Scripts/Benchmark02.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Models/AmbientOcclusionModel.cs" />
+    <Compile Include="Assets/DenysAlmaral/FishAlive/Scripts/ReachPoint.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/Environment/#NVJOB Assets/Dynamic Sky (For Demo)/DynamicSkyForDemo.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Attributes/TrackballAttribute.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/PostProcessingComponent.cs" />
@@ -148,6 +150,7 @@
     <Compile Include="Assets/TextMesh Pro/Examples &amp; Extras/Scripts/VertexJitter.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/Environment/Scripts/TDControl.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/Time/ROS2TimeSource.cs" />
+    <Compile Include="Assets/DenysAlmaral/FishAlive/Scripts/FishMotion.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Models/ScreenSpaceReflectionModel.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/MotorZedSlider.cs" />
     <Compile Include="Assets/TextMesh Pro/Examples &amp; Extras/Scripts/TextConsoleSimulator.cs" />
@@ -165,6 +168,7 @@
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Runtime/Components/EyeAdaptationComponent.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/Time/DotnetTimeSource.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/Time/TimeUtils.cs" />
+    <Compile Include="Assets/DenysAlmaral/FishAlive/Scripts/SwimConfig.cs" />
     <Compile Include="Assets/Ros2ForUnity/Scripts/ROS2Boolean.cs" />
     <Compile Include="Assets/TextMesh Pro/Examples &amp; Extras/Scripts/TMP_TextSelector_B.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Utilities/CustomMotionTexture/ExampleWheelController.cs" />
@@ -222,6 +226,7 @@
     <None Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Resources/Shaders/ColorGrading.cginc" />
     <None Include="Assets/Ros2ForUnity/Plugins/shape_msgs_assembly.dll" />
     <None Include="Assets/TextMesh Pro/Examples &amp; Extras/Fonts/Oswald-Bold - OFL.txt" />
+    <None Include="Assets/DenysAlmaral/FishAlive/URP&amp;Built-in/Readme.txt" />
     <None Include="Assets/TextMesh Pro/Examples &amp; Extras/Fonts/Roboto-Bold - AFL.txt" />
     <None Include="Assets/SyntyStudios/PolygonPrototype/Shaders/Prototype_Object.shader" />
     <None Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Resources/Shaders/EyeAdaptation.shader" />
@@ -280,6 +285,7 @@
     <None Include="Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
     <None Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Resources/Shaders/Bloom.cginc" />
     <None Include="Assets/Ros2ForUnity/Plugins/visualization_msgs_assembly.dll" />
+    <None Include="Assets/DenysAlmaral/FishAlive/Readme_FreeSamples.txt" />
     <None Include="Assets/#NVJOB Water Shaders V2/Example Scenes/Environment/Rainbow/Materials/No Fog.shader" />
     <None Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Resources/Shaders/LutGen.shader" />
     <None Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Resources/Shaders/MotionBlur.cginc" />

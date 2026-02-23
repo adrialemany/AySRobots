@@ -102,10 +102,10 @@ public class RobotControllerButtons : MonoBehaviour
 
         // --- PARED INVISIBLE (LÍMITES DE ALTURA) ---
         Vector3 pos = transform.position;
-        if (pos.y > -0.421f || pos.y < -5.274f)
+        if (pos.y > -0.421f || pos.y < -4.945f)
         {
             // Bloqueamos la posición en los límites exactos
-            pos.y = Mathf.Clamp(pos.y, -5.274f, -0.421f);
+            pos.y = Mathf.Clamp(pos.y, -4.945f, -0.421f);
             transform.position = pos;
             
             // Matamos la inercia vertical física para que no rebote

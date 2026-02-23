@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 16103460437d1a941b80574815e9c4bb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 362806
+  packageName: Fish Alive - FREE Samples
+  packageVersion: 1.0
+  assetPath: Assets/DenysAlmaral/FishAlive/Scripts/Editor/ReadmeReaderEditor.cs
+  uploadId: 865832

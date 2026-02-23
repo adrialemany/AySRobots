@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b6e0c8e4a7e037f40a149448b81c5781
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 362806
+  packageName: Fish Alive - FREE Samples
+  packageVersion: 1.0
+  assetPath: Assets/DenysAlmaral/FishAlive/Scripts/ReachPoint.cs
+  uploadId: 865832

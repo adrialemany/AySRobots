@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 61c61766db3413d43a2e2da84e25c90d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 362806
+  packageName: Fish Alive - FREE Samples
+  packageVersion: 1.0
+  assetPath: Assets/DenysAlmaral/FishAlive/Scripts/SwimConfig.cs
+  uploadId: 865832

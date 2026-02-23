@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2f1e95dee42e70b449a312311486ec2e
+timeCreated: 1441649036
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 31917
+  packageName: Old Rowboat
+  packageVersion: 2.1
+  assetPath: Assets/Boats/Legacy_Content/Imports/Materials/Boat_Alum.mat
+  uploadId: 237246

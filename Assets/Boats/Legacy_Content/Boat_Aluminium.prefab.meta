@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: d568bc13143bef84bbbb8b44ebf6d1ed
+labels:
+- Boat
+- Ship
+- Rowboat
+- Pier
+- Waterfront
+timeCreated: 1441788418
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 31917
+  packageName: Old Rowboat
+  packageVersion: 2.1
+  assetPath: Assets/Boats/Legacy_Content/Boat_Aluminium.prefab
+  uploadId: 237246

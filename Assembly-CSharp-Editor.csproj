@@ -87,11 +87,13 @@
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/ColorGradingModelEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/PropertyDrawers/MinDrawer.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/PostProcessingMonitor.cs" />
+    <Compile Include="Assets/DenysAlmaral/FishAlive/Scripts/Editor/ReadmeReaderEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Monitors/WaveformMonitor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/DepthOfFieldModelEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Utils/EditorGUIHelper.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/AmbientOcclusionModelEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/ScreenSpaceReflectionModelEditor.cs" />
+    <Compile Include="Assets/DenysAlmaral/FishAlive/Scripts/Editor/ReadmeReader.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Models/DefaultPostFxModelEditor.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/Utils/FxStyles.cs" />
     <Compile Include="Assets/#NVJOB Water Shaders V2/Example Scenes/PostProcessing/Editor/PostProcessingInspector.cs" />

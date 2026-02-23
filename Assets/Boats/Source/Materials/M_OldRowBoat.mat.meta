@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 98afed958a355d6478e3e28fef01e06f
+timeCreated: 1519543594
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 31917
+  packageName: Old Rowboat
+  packageVersion: 2.1
+  assetPath: Assets/Boats/Source/Materials/M_OldRowBoat.mat
+  uploadId: 237246

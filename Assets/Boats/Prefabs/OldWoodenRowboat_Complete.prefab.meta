@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a89eef680e28b83449e3a6ba46792fbe
+timeCreated: 1519549953
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 31917
+  packageName: Old Rowboat
+  packageVersion: 2.1
+  assetPath: Assets/Boats/Prefabs/OldWoodenRowboat_Complete.prefab
+  uploadId: 237246

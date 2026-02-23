@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: bb619725b065963488b1dad675c9e58f
+timeCreated: 1519549866
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 31917
+  packageName: Old Rowboat
+  packageVersion: 2.1
+  assetPath: Assets/Boats/Prefabs/Paddle.prefab
+  uploadId: 237246

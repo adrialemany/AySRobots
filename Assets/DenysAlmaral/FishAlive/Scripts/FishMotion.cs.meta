@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 69e52a9cd2d5e84468e00a63ab12cefa
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 362806
+  packageName: Fish Alive - FREE Samples
+  packageVersion: 1.0
+  assetPath: Assets/DenysAlmaral/FishAlive/Scripts/FishMotion.cs
+  uploadId: 865832

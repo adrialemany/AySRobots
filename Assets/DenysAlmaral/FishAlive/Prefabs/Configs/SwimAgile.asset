@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61c61766db3413d43a2e2da84e25c90d, type: 3}
+  m_Name: SwimAgile
+  m_EditorClassIdentifier: 
+  TargetPingFrequency: 0.3
+  TargetPingPrecision: 0.2
+  TargetPositionPrecision: 0.1
+  TargetFar: 2.5
+  TargetClose: 0.8
+  FastAcceleration: 4
+  NormalAcceleration: 1.5
+  AccelerationFadeInSpeed: 40
+  SlowAcceleration: 0.3
+  BaseTurningAcceleration: 240
+  LiquidDrag: 1.5
+  AnimClipBite: bite
+  BoneMouth: bone_mouth
