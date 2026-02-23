@@ -33,6 +33,18 @@ The core of this project is the `RobotROS2Subscriber.cs` script. This controller
 * ROS 2 (Humble recommended on Ubuntu 22.04).
 * ROS2ForUnity package (https://github.com/RobotecAI/ros2-for-unity) installed and built within the Unity project.
 
+## Installation / Cloning
+**⚠️ Important:** This repository uses Git Large File Storage (LFS) for high-fidelity 3D CAD models. You must have Git LFS installed on your system before cloning.
+
+```bash
+# Install Git LFS (Ubuntu)
+sudo apt install git-lfs
+git lfs install
+
+# Clone the repository
+git clone [https://github.com/adrialemany/AySRobots.git](https://github.com/adrialemany/AySRobots.git)
+```
+
 ## Scene Setup
 To make the simulator work correctly in your Unity scene:
 
@@ -62,11 +74,9 @@ source /opt/ros/humble/setup.bash
 ```
 You can control the robot by publishing Twist messages directly. The axis mapping is as follows:
 
-Linear.x: Forward (positive) / Backward (negative).
-
-Linear.z: Dive velocity (Positive = ascends towards the surface, Negative = descends/dives).
-
-Angular.z: Horizontal rotation (Yaw).
+* `linear.x`: Forward (positive) / Backward (negative).
+* `linear.z`: Dive velocity (Positive = ascends towards the surface, Negative = descends/dives).
+* `angular.z`: Horizontal rotation (Yaw).
 
 Test example (Move forward and dive simultaneously):
 
@@ -75,7 +85,7 @@ ros2 topic pub /cmd_vel geometry_msgs/Twist "{linear: {x: 3.0, y: 0.0, z: -1.0},
 ```
 Upon executing this command, you will see the propellers activate in Unity, the robot will move forward, and it will begin to sink smoothly until it hits its lower depth limit.
 
-3. Use Teleoperation Tools
+### 3. Use Teleoperation Tools
 You can use standard ROS packages to drive the robot with your physical keyboard or a gamepad without modifying anything in Unity:
 
 ```bash
@@ -110,6 +120,12 @@ The Unity Digital Twin acts as a standard ROS 2 node, allowing you to build exte
 * **Role:** Unity acts as a **Publisher**, external applications act as **Subscribers**.
 * **Usage:** Subscribe to this topic to get spatial data plus simulated laser return intensity. The data is formatted with standard `x`, `y`, `z`, and `intensity` fields (Float32). Useful for SLAM algorithms, obstacle avoidance, or 3D visualizers.
 
+#### 4. Emergency Stop / Relocate (Input to Unity)
+* **Topic:** `/relocate`
+* **Message Type:** `std_msgs/msg/Bool`
+* **Role:** External applications act as **Publishers**, Unity acts as a **Subscriber**.
+* **Usage:** Publish a `true` boolean message to this topic to instantly kill all linear and angular inertia. The robot will stabilize at its current depth and reset its movement targets. Perfect for "kill switch" implementations.
+
 ### Building an External Interface (Python Example)
 
 If you are building an external dashboard or control script using `rclpy`, your node setup must mirror the Unity configuration. Here is a conceptual template of how an external interface connects to the simulator:
@@ -121,6 +137,7 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import CompressedImage, PointCloud2
 import cv2
 import numpy as np
+from std_msgs.msg import Bool
 
 class ExternalRobotInterface(Node):
     def __init__(self):
@@ -132,6 +149,13 @@ class ExternalRobotInterface(Node):
         # 2. SUBSCRIBERS: Receive sensor data FROM the Unity robot
         self.cam_sub = self.create_subscription(CompressedImage, '/camera/image/compressed', self.camera_callback, 10)
         self.lidar_sub = self.create_subscription(PointCloud2, '/lidar/points', self.lidar_callback, 10)
+        self.relocate_pub = self.create_publisher(Bool, '/relocate', 10)
+
+    def trigger_emergency_stop(self):
+        """Instantly stabilizes the robot at its current depth"""
+        msg = Bool()
+        msg.data = True
+        self.relocate_pub.publish(msg)
 
     def move_robot(self, forward_speed, dive_speed, turn_speed):
         """Call this function from your UI buttons or gamepad"""
