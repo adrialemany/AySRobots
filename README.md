@@ -1,6 +1,9 @@
 # Aerial and Submarine Robots: Unity ROS 2 Marine Digital Twin
 
-This repository contains a physical and visual simulator in Unity for a marine vehicle remotely controlled via ROS 2. It functions as a Digital Twin that reacts in real-time to velocity and depth commands sent from the ROS ecosystem, developed as a practical project for the "Aerial and Submarine Robotics" course at Universitat Jaume I.
+This repository contains a physical and visual simulator in Unity for a marine vehicle remotely controlled via ROS 2. It functions as a Digital Twin that reacts in real-time to velocity and depth commands sent from the ROS ecosystem, developed as a practical project for the "Aerial and Submarine Robotics" course at Universitat Jaume I. The project presentation can be downloaded from: 
+```bash
+https://www.canva.com/design/DAHCLyPA4mQ/3D7wqMlQ-1GvoCRDURzWMw/edit?utm_content=DAHCLyPA4mQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+```
 
 ## Concept
 The core of this project is the `RobotROS2Subscriber.cs` script. This controller converts the Unity vehicle into a ROS 2 node that "listens" to the `/cmd_vel` topic. Upon receiving standard `geometry_msgs/Twist` commands, the robot applies 3D movement physics, manages a smart ballast system to submerge or surface, and animates its propellers differentially.
