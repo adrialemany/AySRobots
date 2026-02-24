@@ -2,28 +2,29 @@
 # -*- coding: utf-8 -*-
 """
 AysRoboTS • Submarine Teleop Console (ROS2 Humble + PySide6)
-- Subscribes to Unity camera + lidar
-- Runs YOLO locally on the received camera frames (NO detections topic needed)
-- Clean, professional UI with selectable targets + AUTO follow (visual + sonar safety)
-- Incremental keyboard teleop (hold keys ramps up via repeats) + Space = all zero
-- Clean shutdown on Ctrl+C and window close
 
-Topics expected (based on your ros2 topic list):
-  /camera/image/compressed   (sensor_msgs/msg/CompressedImage)  [preferred]
-  /camera/image_raw          (sensor_msgs/msg/Image)            [optional]
-  /lidar/points              (sensor_msgs/msg/PointCloud2)
-  /cmd_vel                   (geometry_msgs/msg/Twist)
+✅ Features
+- Subscribes to Unity camera (/camera/image/compressed or /camera/image_raw)
+- Subscribes to LiDAR 4D (/lidar/points) and computes a "RADAR" (F/L/R/B/D)
+- Runs YOLO locally on the received frames (Ultralytics)
+- Select a YOLO target and FOLLOW: keeps it centered + approaches to user distance (LiDAR front safety)
+- Incremental keyboard teleop (hold key ramps via auto-repeat), Space = all zero
+- Clean shutdown on Ctrl+C + window close
+- "RECOVER" button (press-and-hold): publishes /relocate = True continuously while pressed, False on release
+
+Expected topics:
+  /camera/image/compressed   sensor_msgs/msg/CompressedImage
+  /camera/image_raw          sensor_msgs/msg/Image
+  /lidar/points              sensor_msgs/msg/PointCloud2
+  /cmd_vel                   geometry_msgs/msg/Twist
+  /relocate                  std_msgs/msg/Bool   (press & hold true)
 
 Install:
-  python3 -m pip install --user -U PySide6 opencv-python numpy cv-bridge sensor_msgs_py ultralytics
-
-Notes:
-- If YOLO is too slow on CPU, set YOLO_ENABLED=False or lower imgsz/conf.
-- If yaw sign is inverted in your sim, flip YAW_SIGN below.
+  sudo apt install ros-humble-cv-bridge
+  python3 -m pip install --user -U PySide6 ultralytics opencv-python numpy sensor_msgs_py
 """
 
 import sys
-import json
 import time
 import math
 import threading
@@ -43,11 +44,12 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image, CompressedImage, PointCloud2
 from sensor_msgs_py import point_cloud2
 from cv_bridge import CvBridge
-from std_msgs.msg import String
+
+from std_msgs.msg import String, Bool
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-# --- YOLO (local inference on the received frames) ---
+# --- YOLO (local inference) ---
 try:
     from ultralytics import YOLO
     ULTRALYTICS_OK = True
@@ -59,13 +61,12 @@ except Exception:
 # Tunables
 # -------------------------
 YOLO_ENABLED = True
-YOLO_MODEL = "yolov8n.pt"      # you can swap to yolov8s.pt if you have power
+YOLO_MODEL = "yolov8n.pt"
 YOLO_CONF = 0.35
 YOLO_IMGSZ = 640
-YOLO_DEVICE = None            # None, "cpu", "cuda:0" ...
+YOLO_DEVICE = None  # None, "cpu", "cuda:0", ...
 
-# Unity yaw convention sometimes differs
-# If A/D are inverted, flip this between +1 and -1
+# If yaw feels inverted, flip between +1.0 and -1.0
 YAW_SIGN = -1.0
 
 
@@ -87,7 +88,8 @@ class TeleopRosNode(Node):
 
         # Topics
         self.cmd_vel = "/cmd_vel"
-        self.mode_out = "/teleop/mode"  # optional, harmless if no subscriber
+        self.mode_out = "/teleop/mode"          # optional
+        self.relocate_topic = "/relocate"       # press&hold button publishes Bool
 
         self.camera_raw_in = "/camera/image_raw"
         self.camera_comp_in = "/camera/image/compressed"
@@ -96,6 +98,7 @@ class TeleopRosNode(Node):
         # Publishers
         self.pub_cmd = self.create_publisher(Twist, self.cmd_vel, 10)
         self.pub_mode = self.create_publisher(String, self.mode_out, 10)
+        self.pub_relocate = self.create_publisher(Bool, self.relocate_topic, 10)
 
         # Subscriptions
         self.create_subscription(Image, self.camera_raw_in, self._on_image_raw, qos_profile_sensor_data)
@@ -112,10 +115,14 @@ class TeleopRosNode(Node):
         self._last_img_src: str = "---"
         self._frame_seq: int = 0
 
-        # sonar-like nearest (from lidar)
+        # nearest frontal (legacy sonar)
         self._nearest_xyz: Optional[Tuple[float, float, float]] = None
         self._nearest_dist: Optional[float] = None
         self._nearest_stamp: float = 0.0
+
+        # RADAR distances (axis-projected)
+        self._radar: Dict[str, Optional[float]] = {"front": None, "left": None, "right": None, "back": None, "down": None}
+        self._radar_stamp: float = 0.0
 
         # /cmd_vel bus
         self._cmd_in_last: Optional[Tuple[float, float, float, float]] = None
@@ -131,8 +138,13 @@ class TeleopRosNode(Node):
         msg.linear.x = float(vx)
         msg.linear.y = float(vy)
         msg.linear.z = float(vz)
-        msg.angular.z = float(yaw * YAW_SIGN)
+        msg.angular.z = float(yaw * YAW_SIGN)  # apply sign ONCE here
         self.pub_cmd.publish(msg)
+
+    def publish_relocate(self, is_true: bool):
+        msg = Bool()
+        msg.data = bool(is_true)
+        self.pub_relocate.publish(msg)
 
     def get_latest(self):
         with self._lock:
@@ -145,10 +157,16 @@ class TeleopRosNode(Node):
             nearest_xyz = self._nearest_xyz
             nearest_age = now_s() - self._nearest_stamp if self._nearest_stamp > 0 else None
 
+            radar = self._radar.copy()
+            radar_age = now_s() - self._radar_stamp if self._radar_stamp > 0 else None
+
             cmd_in = self._cmd_in_last
             cmd_in_age = now_s() - self._cmd_in_stamp if self._cmd_in_stamp > 0 else None
 
-        return bgr, img_age, img_src, frame_seq, nearest_dist, nearest_xyz, nearest_age, cmd_in, cmd_in_age
+        return (bgr, img_age, img_src, frame_seq,
+                nearest_dist, nearest_xyz, nearest_age,
+                cmd_in, cmd_in_age,
+                radar, radar_age)
 
     # Camera
     def _store_bgr(self, bgr: np.ndarray, src: str):
@@ -174,27 +192,31 @@ class TeleopRosNode(Node):
         except Exception:
             pass
 
-    # Lidar -> nearest "frontal sonar"
+    # LiDAR -> nearest frontal + RADAR
     def _on_lidar(self, msg: PointCloud2):
+        # nearest frontal (euclidean)
         min_d2 = None
         min_xyz = None
 
-        max_points = 9000
+        # RADAR (axis-projected) minima
+        rad = {"front": None, "left": None, "right": None, "back": None, "down": None}
 
-        # Ignore very close points (robot/self)
+        max_points = 12000
         min_range = 0.35
         min_r2 = min_range * min_range
 
-        # Frontal filter: x forward, ignore floor/ceiling/water extremes
-        x_min = 0.20
-        z_min = -0.35
-        z_max = +0.35
+        # thresholds (assuming x forward, y left, z up)
+        x_front = 0.15
+        x_back = -0.15
+        y_side = 0.15
+        z_down = -0.10
+
+        # clamps to ignore crazy points (optional)
+        z_min, z_max = -5.0, 5.0
 
         try:
             count = 0
             for x, y, z in point_cloud2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True):
-                if x < x_min:
-                    continue
                 if z < z_min or z > z_max:
                     continue
 
@@ -202,22 +224,53 @@ class TeleopRosNode(Node):
                 if d2 < min_r2:
                     continue
 
-                if (min_d2 is None) or (d2 < min_d2):
-                    min_d2 = d2
-                    min_xyz = (float(x), float(y), float(z))
+                # --- RADAR per direction (distance projected on axis) ---
+                # FRONT: min x ahead
+                if x > x_front and abs(y) < 2.0:
+                    if rad["front"] is None or x < rad["front"]:
+                        rad["front"] = float(x)
+
+                # BACK: min |x| behind
+                if x < x_back and abs(y) < 2.0:
+                    bx = float(abs(x))
+                    if rad["back"] is None or bx < rad["back"]:
+                        rad["back"] = bx
+
+                # LEFT: min y on left (y>0)
+                if y > y_side and abs(x) < 3.0:
+                    if rad["left"] is None or y < rad["left"]:
+                        rad["left"] = float(y)
+
+                # RIGHT: min |y| on right (y<0)
+                if y < -y_side and abs(x) < 3.0:
+                    ry = float(abs(y))
+                    if rad["right"] is None or ry < rad["right"]:
+                        rad["right"] = ry
+
+                # DOWN: min |z| below (z<0)  -> varies when going down IF lidar sees below
+                if z < z_down and abs(x) < 3.0 and abs(y) < 3.0:
+                    dz = float(abs(z))
+                    if rad["down"] is None or dz < rad["down"]:
+                        rad["down"] = dz
+
+                # --- nearest frontal sonar (stricter region) ---
+                if x > 0.20 and (-0.35 <= z <= 0.35):
+                    if (min_d2 is None) or (d2 < min_d2):
+                        min_d2 = d2
+                        min_xyz = (float(x), float(y), float(z))
 
                 count += 1
                 if count >= max_points:
                     break
 
-            if min_d2 is None:
-                return
-
-            d = math.sqrt(min_d2)
             with self._lock:
-                self._nearest_xyz = min_xyz
-                self._nearest_dist = float(d)
-                self._nearest_stamp = now_s()
+                if min_d2 is not None:
+                    self._nearest_xyz = min_xyz
+                    self._nearest_dist = float(math.sqrt(min_d2))
+                    self._nearest_stamp = now_s()
+
+                self._radar = rad
+                self._radar_stamp = now_s()
 
         except Exception:
             return
@@ -328,13 +381,11 @@ class YoloWorker(QtCore.QObject):
 
             infer_ms = (time.time() - t0) * 1000.0
             self.detections_ready.emit(dets_out, infer_ms)
-
-            # Keep CPU sane
             time.sleep(0.01)
 
 
 # -------------------------
-# Video widget (no jitter, fullscreen safe)
+# Video widget (fullscreen stable)
 # -------------------------
 class VideoWidget(QtWidgets.QWidget):
     def __init__(self):
@@ -397,17 +448,15 @@ class VideoWidget(QtWidgets.QWidget):
 # -------------------------
 @dataclass
 class TeleopConfig:
-    # Limits
     max_lin: float = 2.0
     max_lat: float = 1.2
     max_vz: float = 1.2
-    max_yaw: float = 12.0
+    max_yaw: float = 8.0
 
-    # Increment per key press (auto-repeat => ramp)
     step_lin: float = 0.10
     step_lat: float = 0.08
     step_vz: float = 0.08
-    step_yaw: float = 0.60
+    step_yaw: float = 0.80  # aggressive turn
 
     turbo_mult: float = 1.7
     cmd_rate_hz: float = 300.0
@@ -431,7 +480,7 @@ class TeleopWindow(QtWidgets.QMainWindow):
         self.cfg = cfg
 
         self.setWindowTitle("AysRoboTS • Submarine Teleop Console")
-        self.resize(1350, 780)
+        self.resize(1420, 820)
 
         self.keys_down = set()
         self.last_input_time = 0.0
@@ -440,19 +489,22 @@ class TeleopWindow(QtWidgets.QMainWindow):
         self.vx = self.vy = self.vz = self.yaw = 0.0
         self._last_tick = now_s()
 
-        # Latest camera seq to avoid pushing same frame to YOLO repeatedly
         self._last_frame_seq_seen = -1
 
-        # YOLO detections (local)
         self.yolo_dets: List[Dict[str, Any]] = []
         self.yolo_infer_ms: Optional[float] = None
         self.yolo_status: str = "YOLO: ---"
 
-        # Target selection/follow
         self.selected_idx = -1
         self.follow_enabled = False
 
-        # UI
+        # RECOVER press&hold publisher timer (True while pressed)
+        self._recover_timer = QtCore.QTimer(self)
+        self._recover_timer.setInterval(50)  # 20 Hz
+        self._recover_timer.timeout.connect(self._recover_tick)
+        self._recover_is_pressed = False
+
+        # Build UI
         root = QtWidgets.QWidget()
         self.setCentralWidget(root)
         layout = QtWidgets.QHBoxLayout(root)
@@ -484,15 +536,20 @@ class TeleopWindow(QtWidgets.QMainWindow):
         self.yolo_worker.status_ready.connect(self._on_yolo_status)
         self.yolo_thread.start()
 
-    # ---- Clean close ----
     def closeEvent(self, event):
+        # Ensure everything stops cleanly (including /relocate false)
+        try:
+            self._stop_recover()
+            self.ros.publish_relocate(False)
+        except Exception:
+            pass
+
         try:
             self.set_mode("HOLD")
             self.ros.publish_cmd_vel(0, 0, 0, 0)
         except Exception:
             pass
 
-        # Stop YOLO thread cleanly
         try:
             self.yolo_worker.stop()
             self.yolo_thread.quit()
@@ -502,7 +559,7 @@ class TeleopWindow(QtWidgets.QMainWindow):
 
         event.accept()
 
-    # ---- Build UI panels ----
+    # ---- UI build ----
     def _build_left(self):
         w = QtWidgets.QFrame(); w.setObjectName("panel"); w.setMinimumWidth(310)
         v = QtWidgets.QVBoxLayout(w); v.setSpacing(10)
@@ -516,7 +573,6 @@ class TeleopWindow(QtWidgets.QMainWindow):
         for b in (self.btn_manual, self.btn_auto, self.btn_hold):
             b.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
             b.setMinimumHeight(38)
-
         self.btn_manual.clicked.connect(lambda: self.set_mode("MANUAL"))
         self.btn_auto.clicked.connect(lambda: self.set_mode("AUTO"))
         self.btn_hold.clicked.connect(lambda: self.set_mode("HOLD"))
@@ -572,15 +628,22 @@ class TeleopWindow(QtWidgets.QMainWindow):
         return w
 
     def _build_right(self):
-        w = QtWidgets.QFrame(); w.setObjectName("panel"); w.setMinimumWidth(380)
+        w = QtWidgets.QFrame(); w.setObjectName("panel"); w.setMinimumWidth(440)
         v = QtWidgets.QVBoxLayout(w); v.setSpacing(10)
 
         title = QtWidgets.QLabel("PERCEPTION"); title.setObjectName("panelTitle")
 
-        # sonar card
         self.lbl_sonar = QtWidgets.QLabel("SONAR: ---"); self.lbl_sonar.setObjectName("sonarCard")
+        self.lbl_radar = QtWidgets.QLabel("RADAR: ---"); self.lbl_radar.setObjectName("radarCard")
 
-        # YOLO summary
+        # RECOVER hold button
+        self.btn_recover = QtWidgets.QPushButton("RECOVER (hold)")
+        self.btn_recover.setObjectName("recover")
+        self.btn_recover.setMinimumHeight(40)
+        self.btn_recover.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btn_recover.pressed.connect(self._start_recover)
+        self.btn_recover.released.connect(self._stop_recover)
+
         self.lbl_targets = QtWidgets.QLabel("TARGETS: ---"); self.lbl_targets.setObjectName("targetsCard")
         self.lbl_yolo_status = QtWidgets.QLabel("YOLO: ---"); self.lbl_yolo_status.setObjectName("hint")
 
@@ -596,14 +659,13 @@ class TeleopWindow(QtWidgets.QMainWindow):
         self.spin_dist.setSingleStep(0.1)
         self.spin_dist.setValue(1.5)
         self.spin_dist.setSuffix(" m")
-        self.spin_dist.setToolTip("Minimum safety distance using lidar (sonar-like).")
+        self.spin_dist.setToolTip("Desired distance (using LiDAR front / safety).")
 
         self.btn_follow = QtWidgets.QPushButton("FOLLOW")
         self.btn_stop_follow = QtWidgets.QPushButton("STOP")
         for b in (self.btn_follow, self.btn_stop_follow):
             b.setMinimumHeight(36)
             b.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-
         self.btn_follow.clicked.connect(self._start_follow)
         self.btn_stop_follow.clicked.connect(self._stop_follow)
 
@@ -613,6 +675,8 @@ class TeleopWindow(QtWidgets.QMainWindow):
 
         v.addWidget(title)
         v.addWidget(self.lbl_sonar)
+        v.addWidget(self.lbl_radar)
+        v.addWidget(self.btn_recover)
         v.addWidget(self.lbl_targets)
         v.addWidget(self.lbl_yolo_status)
         v.addWidget(legend)
@@ -630,8 +694,12 @@ class TeleopWindow(QtWidgets.QMainWindow):
         QPushButton { background: #111827; border: 1px solid #263445; border-radius: 10px; color: #e5e7eb; font-weight: 800; }
         QPushButton:hover { border-color: #3b82f6; }
         QPushButton:pressed { background: #0b1220; }
+
         QPushButton#estop { background: #1a0b0b; border: 1px solid #7f1d1d; color: #fecaca; font-weight: 900; }
         QPushButton#estop:hover { border-color: #ef4444; }
+
+        QPushButton#recover { background: #0b1a12; border: 1px solid #1f6f3a; color: #bbf7d0; font-weight: 900; }
+        QPushButton#recover:hover { border-color: #22c55e; }
 
         QCheckBox { color: #cbd5e1; padding: 0 10px; }
 
@@ -642,6 +710,7 @@ class TeleopWindow(QtWidgets.QMainWindow):
         #hint { color: #9aa4b2; padding: 0 10px; font-size: 12px; line-height: 16px; }
 
         #sonarCard { color: #e5e7eb; padding: 10px 12px; background: #08131f; border: 1px solid #1d3552; border-radius: 12px; font-weight: 900; }
+        #radarCard { color: #e5e7eb; padding: 10px 12px; background: #071018; border: 1px solid #22314a; border-radius: 12px; font-weight: 900; }
         #targetsCard { color: #e5e7eb; padding: 10px 12px; background: #0f172a; border: 1px solid #22314a; border-radius: 12px; font-weight: 900; }
         #selectedCard { color: #e5e7eb; padding: 10px 12px; background: #0f172a; border: 1px solid #22314a; border-radius: 12px; font-weight: 900; }
 
@@ -650,7 +719,32 @@ class TeleopWindow(QtWidgets.QMainWindow):
         QLabel { font-family: Inter, Segoe UI, Ubuntu, Arial; }
         """)
 
-    # ---- UI helpers ----
+    # ---- Recover (press&hold) ----
+    def _recover_tick(self):
+        # publish True continuously while pressed
+        try:
+            self.ros.publish_relocate(True)
+        except Exception:
+            pass
+
+    def _start_recover(self):
+        self._recover_is_pressed = True
+        try:
+            self.ros.publish_relocate(True)
+        except Exception:
+            pass
+        self._recover_timer.start()
+
+    def _stop_recover(self):
+        self._recover_is_pressed = False
+        if self._recover_timer.isActive():
+            self._recover_timer.stop()
+        try:
+            self.ros.publish_relocate(False)
+        except Exception:
+            pass
+
+    # ---- Helpers ----
     def _toggle_overlay(self):
         self.cfg.draw_yolo = self.cb_overlay.isChecked()
 
@@ -703,11 +797,10 @@ class TeleopWindow(QtWidgets.QMainWindow):
 
     def _on_select_target(self, idx: int):
         self.selected_idx = idx
-        # do not auto-follow on click
         self.follow_enabled = False
 
     def _start_follow(self):
-        if self.selected_idx >= 0 and self.selected_idx < len(self.yolo_dets):
+        if 0 <= self.selected_idx < len(self.yolo_dets):
             self.follow_enabled = True
             self.set_mode("AUTO")
 
@@ -715,7 +808,6 @@ class TeleopWindow(QtWidgets.QMainWindow):
         self.follow_enabled = False
         self.set_mode("HOLD")
 
-    # ---- Render overlay ----
     def _overlay_yolo(self, bgr: np.ndarray, dets: List[Dict[str, Any]]) -> np.ndarray:
         out = bgr.copy()
         h, w = out.shape[:2]
@@ -737,7 +829,8 @@ class TeleopWindow(QtWidgets.QMainWindow):
     def refresh_ui(self):
         (bgr, img_age, img_src, frame_seq,
          nearest_dist, nearest_xyz, nearest_age,
-         cmd_in, cmd_in_age) = self.ros.get_latest()
+         cmd_in, cmd_in_age,
+         radar, radar_age) = self.ros.get_latest()
 
         self.lbl_status.setText(f"STATUS: {self._status_from_dist(nearest_dist)}   |   MODE: {self.mode}")
 
@@ -746,12 +839,26 @@ class TeleopWindow(QtWidgets.QMainWindow):
         else:
             self.lbl_cam.setText(f"CAM({img_src}): {img_age*1000:.0f} ms")
 
-        # SONAR (short + readable)
+        # SONAR
         if nearest_dist is None or nearest_xyz is None:
             self.lbl_sonar.setText("SONAR: ---")
         else:
             x, y, z = nearest_xyz
             self.lbl_sonar.setText(f"SONAR: {nearest_dist:.2f} m   (x={x:+.2f}, y={y:+.2f}, z={z:+.2f})")
+
+        # RADAR
+        def fmt(v):
+            return "---" if v is None else f"{v:.2f}m"
+
+        # NOTE: If your lidar is actually a horizontal scan, DOWN may stay '---' (no points below)
+        self.lbl_radar.setText(
+            "RADAR  "
+            f"F:{fmt(radar.get('front'))}  "
+            f"L:{fmt(radar.get('left'))}  "
+            f"R:{fmt(radar.get('right'))}  "
+            f"B:{fmt(radar.get('back'))}  "
+            f"D:{fmt(radar.get('down'))}"
+        )
 
         # YOLO status + targets
         self.lbl_yolo_status.setText(self.yolo_status)
@@ -761,7 +868,7 @@ class TeleopWindow(QtWidgets.QMainWindow):
         else:
             self.lbl_targets.setText(f"TARGETS: {n}")
 
-        # Update list
+        # List
         self.yolo_list.blockSignals(True)
         self.yolo_list.clear()
         if YOLO_ENABLED and ULTRALYTICS_OK:
@@ -781,19 +888,19 @@ class TeleopWindow(QtWidgets.QMainWindow):
             d = self.yolo_dets[self.selected_idx]
             self.lbl_sel.setText(f"SELECTED: {d.get('label','obj')} • {d.get('conf',0.0):.2f}")
 
-        # Push camera frame to YOLO only when new
+        # Push new camera frames to YOLO
         if bgr is not None and frame_seq != self._last_frame_seq_seen:
             self._last_frame_seq_seen = frame_seq
             if YOLO_ENABLED and ULTRALYTICS_OK:
                 self.yolo_worker.push_frame(bgr)
 
-        # Draw video
+        # Video
         if bgr is not None:
             if self.cfg.draw_yolo and self.yolo_dets:
                 bgr = self._overlay_yolo(bgr, self.yolo_dets)
             self.video.set_frame(bgr)
 
-        # Telemetry line
+        # Telemetry
         parts = [f"OUT: vx={self.vx:+.2f} vy={self.vy:+.2f} vz={self.vz:+.2f} yaw={self.yaw:+.2f}"]
         if cmd_in is not None and cmd_in_age is not None:
             ivx, ivy, ivz, iyaw = cmd_in
@@ -809,7 +916,6 @@ class TeleopWindow(QtWidgets.QMainWindow):
         dt = max(1e-3, t - self._last_tick)
         self._last_tick = t
 
-        # AUTO follow mode
         if self.mode == "AUTO" and self.follow_enabled:
             self._auto_follow_step()
             return
@@ -820,10 +926,7 @@ class TeleopWindow(QtWidgets.QMainWindow):
             self.ros.publish_cmd_vel(self.vx, self.vy, self.vz, self.yaw)
             return
 
-        # Brake missing axes
         self._brake_missing_axes(dt)
-
-        # Publish
         self.ros.publish_cmd_vel(self.vx, self.vy, self.vz, self.yaw)
 
     def _brake_to_zero(self, dt: float):
@@ -857,16 +960,16 @@ class TeleopWindow(QtWidgets.QMainWindow):
             self.yaw *= max(0.0, 1.0 - k)
             if abs(self.yaw) < 1e-3: self.yaw = 0.0
 
-    # ---- AUTO follow (visual + sonar safety) ----
+    # ---- AUTO follow: keep target centered + approach to distance ----
     def _auto_follow_step(self):
-        # Need a selected target
         if self.selected_idx < 0 or self.selected_idx >= len(self.yolo_dets):
             self.ros.publish_cmd_vel(0, 0, 0, 0)
             return
 
         (bgr, img_age, img_src, frame_seq,
          nearest_dist, nearest_xyz, nearest_age,
-         cmd_in, cmd_in_age) = self.ros.get_latest()
+         cmd_in, cmd_in_age,
+         radar, radar_age) = self.ros.get_latest()
 
         if bgr is None:
             self.ros.publish_cmd_vel(0, 0, 0, 0)
@@ -875,30 +978,43 @@ class TeleopWindow(QtWidgets.QMainWindow):
         h, w = bgr.shape[:2]
         target = self.yolo_dets[self.selected_idx]
         cx = float(target.get("cx", w / 2.0))
-        bbox = target.get("bbox", None)
 
-        # Yaw to center (flip with YAW_SIGN if inverted)
+        # 1) yaw to center (sign applied in publish_cmd_vel)
         e = (cx - (w / 2.0)) / (w / 2.0)  # [-1..1]
-        yaw = clamp(YAW_SIGN * (-1.8 * e), -1.8, 1.8)
+        Kp_yaw = 2.4
+        yaw = clamp(-Kp_yaw * e, -2.5, 2.5)
 
-        # Forward heuristic based on bbox size (no true depth)
-        vx = 0.35
-        if bbox:
-            x1, y1, x2, y2 = bbox
-            area = max(1.0, (x2 - x1)) * max(1.0, (y2 - y1))
-            if area > 120000:
-                vx = 0.0
-            if area > 160000:
-                vx = -0.2
+        # 2) distance control using RADAR front if available, else nearest_dist
+        dist_front = None
+        if radar and radar.get("front") is not None:
+            dist_front = float(radar["front"])
+        elif nearest_dist is not None:
+            dist_front = float(nearest_dist)
 
-        # Sonar safety distance (real geometry)
         d_ref = float(self.spin_dist.value())
-        if nearest_dist is not None and nearest_dist < d_ref:
+
+        if dist_front is None:
+            vx = 0.0
+        else:
+            Kp_v = 0.9
+            vx = clamp(Kp_v * (dist_front - d_ref), -0.6, 0.9)
+
+        # 3) slow down if target far off-center (turn first)
+        off = abs(e)
+        if off > 0.55:
+            vx *= 0.15
+        elif off > 0.35:
+            vx *= 0.40
+        elif off > 0.20:
+            vx *= 0.70
+
+        # 4) hard safety if too close in front
+        if dist_front is not None and dist_front < max(0.35, d_ref * 0.65):
             vx = -0.35
 
         self.ros.publish_cmd_vel(vx, 0.0, 0.0, yaw)
 
-    # ---- Keyboard incremental control ----
+    # ---- Keyboard incremental teleop ----
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         k = event.key()
 
@@ -921,7 +1037,6 @@ class TeleopWindow(QtWidgets.QMainWindow):
         self.keys_down.add(key)
         self.last_input_time = now_s()
 
-        # In MANUAL, keypress ramps. In AUTO, keypress cancels follow.
         if self.mode == "AUTO":
             self.follow_enabled = False
 
@@ -942,12 +1057,10 @@ class TeleopWindow(QtWidgets.QMainWindow):
         elif key == "F":
             self.vz = clamp(self.vz - self.cfg.step_vz * mult, -self.cfg.max_vz, self.cfg.max_vz)
 
-        # yaw: A left, D right (then apply YAW_SIGN at publish time if needed)
         elif key == "A":
             self.yaw = clamp(self.yaw + self.cfg.step_yaw * mult, -self.cfg.max_yaw, self.cfg.max_yaw)
         elif key == "D":
             self.yaw = clamp(self.yaw - self.cfg.step_yaw * mult, -self.cfg.max_yaw, self.cfg.max_yaw)
-
 
     def keyReleaseEvent(self, event: QtGui.QKeyEvent):
         k = event.key()
@@ -1005,8 +1118,13 @@ def main():
     try:
         code = app.exec()
     finally:
+        # Make sure robot stops + relocate false
         try:
-            win.close()
+            win._stop_recover()
+        except Exception:
+            pass
+        try:
+            ros_node.publish_relocate(False)
         except Exception:
             pass
 
@@ -1015,6 +1133,11 @@ def main():
         try:
             ros_node.publish_cmd_vel(0, 0, 0, 0)
             ros_node.set_mode("HOLD")
+        except Exception:
+            pass
+
+        try:
+            win.close()
         except Exception:
             pass
 
@@ -1034,7 +1157,6 @@ def main():
             pass
 
     sys.exit(code)
-
 
 if __name__ == "__main__":
     main()
