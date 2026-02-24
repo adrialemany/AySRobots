@@ -93,6 +93,41 @@ sudo apt install ros-humble-teleop-twist-keyboard
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
+## Advanced Ground Control Station (Python GUI)
+
+This repository includes a fully featured, multi-threaded Teleoperation Console built with **PySide6**, **OpenCV**, and **Ultralytics (YOLOv8)**. It acts as the ultimate external brain for the Digital Twin, providing an intuitive interface to control the submarine and process its sensor data in real-time.
+
+### Console Features:
+* **Live Video & AI Perception:** Receives the `/camera/image/compressed` stream and runs a local YOLOv8 inference model. It renders bounding boxes, labels, and confidence scores directly on the video overlay.
+* **LiDAR RADAR System:** Subscribes to the 4D PointCloud2 data and filters thousands of points in real-time to compute the closest obstacles in 5 directions (Front, Left, Right, Back, Down), acting as a virtual proximity radar.
+* **Autonomous Target Tracking ("FOLLOW" Mode):** Click on any detected YOLO target from the UI list and press "FOLLOW". The robot will automatically calculate the yaw error to keep the object centered while using the frontal LiDAR data to approach it and stop exactly at the user-defined safe distance.
+* **Advanced Keyboard Teleop:** Supports incremental speed ramps (holding keys increases velocity) with a deadman switch (auto-brakes if keys are released).
+  * `W`/`S`: Forward/Backward
+  * `A`/`D`: Yaw Left/Right
+  * `Q`/`E`: Strafe Left/Right
+  * `R`/`F`: Ascend/Descend
+  * `Shift`: Turbo mode
+  * `Space`: Emergency brake (All zero)
+* **Recover (Relocate):** A dedicated press-and-hold UI button that publishes to the `/relocate` topic, instantly stabilizing the robot.
+
+### Installation & Dependencies
+To run the Ground Control Station, you need a few Python libraries and the ROS 2 CV bridge:
+
+```bash
+# Install the ROS 2 CV Bridge for image conversion
+sudo apt install ros-humble-cv-bridge
+
+# Install Python dependencies
+python3 -m pip install --user -U PySide6 ultralytics opencv-python numpy sensor_msgs_py
+```
+
+### Launching the Console
+Ensure your ROS 2 environment is sourced, the Unity simulation is running, and then execute the script:
+
+```bash
+python3 teleop_submarine.py
+```
+
 ## Interfacing with the Robot (ROS 2 Topics)
 
 The Unity Digital Twin acts as a standard ROS 2 node, allowing you to build external graphical user interfaces (GUIs), autonomous navigation stacks, or AI vision scripts using standard ROS 2 tools (Python, C++, or web-based frameworks like Foxglove Studio).
