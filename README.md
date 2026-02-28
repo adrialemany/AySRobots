@@ -45,7 +45,7 @@ sudo apt install git-lfs
 git lfs install
 
 # Clone the repository
-git clone [https://github.com/adrialemany/AySRobots.git](https://github.com/adrialemany/AySRobots.git)
+git clone https://github.com/adrialemany/AySRobots.git
 ```
 
 ## Scene Setup
